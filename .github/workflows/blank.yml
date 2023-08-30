@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: alpine-latest
+    runs-on: ubuntu-latest
     env:
       PC_ACCESS_KEY: ${{ secrets.PC_ACCESS_KEY }}
       PC_SAAS_API_ENDPOINT: ${{ secrets.PC_SAAS_API_ENDPOINT }}
