@@ -1,0 +1,49 @@
+name: Prisma Cloud CLI run
+
+on: 
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PC_ACCESS_KEY: ${{ secrets.PC_ACCESS_KEY }}
+      PC_SAAS_API_ENDPOINT: ${{ secrets.PC_SAAS_API_ENDPOINT }}
+      PC_SECRET_KEY: ${{ secrets.PC_SECRET_KEY }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      
+      - name: Check for required environment variables
+        run: |
+          required_env_vars=("PC_ACCESS_KEY" "PC_SAAS_API_ENDPOINT" "PC_SECRET_KEY")
+          for env_var in "${required_env_vars[@]}"; do
+            if [[ -z "${!env_var}" ]]; then
+              echo "Error: $env_var is not set"
+              exit 1
+            fi
+          done
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install package
+        run: sudo pip3 install prismacloud-cli -U
+        
+      - name: Accept Support Message
+        run: |
+          mkdir ~/.prismacloud
+          touch ~/.prismacloud/.community_supported_accepted
+
+      - name: Run command
+        run: pc --config environment version
+  
